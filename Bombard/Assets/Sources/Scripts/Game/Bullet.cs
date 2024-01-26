@@ -1,35 +1,17 @@
-using System.Drawing;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
+using UnityEngine.UIElements;
 
 public class Bullet : MonoBehaviour
 {
-    [SerializeField] private float _speed = 10.0f;
-    [SerializeField] private float _maxDistance;
+    [SerializeField] private float _speed = 10f;
+    [SerializeField] private float _distance = 20;
 
-    private void Update()
+    private Ray _ray;
+
+    private void Start()
     {
-        Move();
-    }
-
-    private void Move()
-    {
-        transform.Translate(Vector3.forward * _speed * Time.deltaTime);
-        Die();
-    }
-
-    private void Die()
-    {
-        Vector3 position = transform.position;
-        position.y = Mathf.Abs(position.y);
-
-        float totalDistance = Vector3.Distance(transform.position, position);
-
-
-        if (totalDistance <= _maxDistance)
-        {
-            gameObject.SetActive(false);
-            Debug.Log("Объект " + transform.name + " находится на расстоянии " + totalDistance + " юнитов");
-        }      
+        _ray = new Ray(transform.position, transform.forward);
+        var hitInfo = Physics.Raycast(_ray.origin, _ray.direction, _distance);
+        print(hitInfo);
     }
 }
