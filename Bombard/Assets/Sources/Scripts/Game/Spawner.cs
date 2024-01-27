@@ -1,39 +1,84 @@
+using System;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class Spawner : ObjectPool
+namespace Game
 {
-    [SerializeField] private GameObject _bulletPrefab;
-    [SerializeField] private Transform _spawnPoint;
-    [SerializeField] private float _secondBetweenSpawn;
-
-    private float _elapsedTime = 0;
-
-    private void Start()
+    public class Spawner : ObjectPool
     {
-        Initialize(_bulletPrefab);              
-    }
+        [SerializeField] private GameObject _bulletPrefab;
+        [SerializeField] private Transform _spawnPoint;
+        [SerializeField] private float _secondBetweenSpawn;
 
-    private void Update()
-    {
-        _spawnPoint = transform;
+        private float _elapsedTime = 0;
+        private float _minDalay = 0.1f;
 
-        _elapsedTime += Time.deltaTime;
+        public event Action Shooted;
 
-        if(_elapsedTime > _secondBetweenSpawn)
+        private void Start()
         {
-            if(TryGetObject(out GameObject bullet))
-            {
-                _elapsedTime = 0;
-                SetBullet(bullet, _spawnPoint.position, _spawnPoint.rotation);                
-            }
-        }  
-    }
+            Initialize(_bulletPrefab);
+        }
 
-    private void SetBullet(GameObject bullet, Vector3 spawnPoint, Quaternion rotate)
-    {
-        bullet.SetActive(true);
-        bullet.transform.position = spawnPoint;
-        bullet.transform.rotation = rotate;
+        private void Update()
+        {
+            _spawnPoint = transform;
+
+            _elapsedTime += Time.deltaTime;
+
+            if (_elapsedTime > _secondBetweenSpawn)
+            {
+                if (TryGetObject(out GameObject bullet))
+                {
+                    _elapsedTime = 0;
+                    SetBullet(bullet, _spawnPoint.position, _spawnPoint.rotation);
+                    bullet.GetComponent<Bullet>().SetDirection();
+                }
+            }
+        }
+
+        private void SetBullet(GameObject bullet, Vector3 spawnPoint, Quaternion rotate)
+        {
+            Shooted?.Invoke();
+            bullet.SetActive(true);
+            bullet.transform.position = spawnPoint;
+            bullet.transform.rotation = rotate;
+            
+        }
+
+        public void ChangeDelaySpawn(string value)
+        {
+            float delay;
+
+            if (float.TryParse(value, out delay) && delay >= _minDalay)
+                _secondBetweenSpawn = delay;
+            else
+                _secondBetweenSpawn = 1f;
+        }
+
+        public void ChangeSpeed(string value)
+        {
+            float speed;
+
+            if (float.TryParse(value, out speed))
+            {
+                foreach (GameObject bullet in _pool)
+                {
+                    bullet.GetComponent<Bullet>().Speed = speed;
+                }
+            }
+        }
+
+        public void ChangeDistance(string value)
+        {
+            float distance;
+
+            if (float.TryParse(value, out distance))
+            {
+                foreach (GameObject bullet in _pool)
+                {
+                    bullet.GetComponent<Bullet>().Distance = distance;
+                }
+            }
+        }
     }
 }

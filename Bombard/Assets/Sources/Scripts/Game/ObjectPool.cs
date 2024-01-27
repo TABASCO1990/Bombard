@@ -2,28 +2,31 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ObjectPool : MonoBehaviour
+namespace Game
 {
-    [SerializeField] private GameObject _container;
-    [SerializeField] private int _capacity;
-
-    private List<GameObject> _pool = new List<GameObject>();
-
-    protected void Initialize(GameObject prefab)
+    public class ObjectPool : MonoBehaviour
     {
-        for (int i = 0; i < _capacity; i++)
+        [SerializeField] private GameObject _container;
+        [SerializeField] private int _capacity;
+
+        protected List<GameObject> _pool = new List<GameObject>();
+
+        protected void Initialize(GameObject prefab)
         {
-            GameObject spawned = Instantiate(prefab, _container.transform);
-            spawned.SetActive(false);
+            for (int i = 0; i < _capacity; i++)
+            {
+                GameObject spawned = Instantiate(prefab, _container.transform);
+                spawned.SetActive(false);
 
-            _pool.Add(spawned);
+                _pool.Add(spawned);
+            }
         }
-    }
 
-    protected bool TryGetObject(out GameObject result)
-    {
-        result = _pool.First(obj => obj.activeSelf == false);
-
-        return result != null;
+        protected bool TryGetObject(out GameObject result)
+        {
+            result = _pool.First(obj => obj.activeSelf == false);
+            result.transform.position = Vector3.zero;
+            return result != null;
+        }
     }
 }
