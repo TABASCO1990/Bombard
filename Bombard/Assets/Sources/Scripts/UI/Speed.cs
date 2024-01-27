@@ -1,6 +1,6 @@
 namespace UI
 {
-    public class Space : View
+    public class Speed : View
     {
         private void OnEnable()
         {
